@@ -1,6 +1,10 @@
+import base64
+import logging
+
 from selenium import webdriver
 from selenium.webdriver.edge.service import Service
-import base64
+
+logger = logging.getLogger("test_logger")
 
 class Driver:
     pass
@@ -20,9 +24,9 @@ class EdgeDriver(webdriver.Edge):
         super().__init__(service=service, options=options)
         # options.add_argument("--disable-gpu")
         # options.add_argument("window-size=1920,1080")
-        # options.add_argument("--inprivate")  # プライベートモードで起動
-        # options.add_argument("ie-mode-file=https://www.yahoo.co.jp/")  # IEモードで開くURLを指定
-        # options.add_experimental_option("ieMode", True)  # IEモードを有効化
+        options.add_argument("--inprivate")  # プライベートモードで起動
+        options.add_argument("ie-mode-file=https://www.yahoo.co.jp/")  # IEモードで開くURLを指定
+        options.add_experimental_option("ieMode", True)  # IEモードを有効化
 
     def full_screenshot(self, file_path):
         width = self.execute_script("return document.body.scrollWidth;")
@@ -39,6 +43,7 @@ class EdgeDriver(webdriver.Edge):
         image = base64.b64decode(image_base64["data"])
         with open(file_path, 'bw') as f:
             f.write(image)
+        logger.info(f"DevToolsプロトコルを使用したページ全体のスクリーンショットを保存しました: {file_path}")
 
 
 class IEDriver(webdriver.Ie):
@@ -55,7 +60,9 @@ class IEDriver(webdriver.Ie):
         super().__init__(service=service, options=options)
 
     def full_screenshot(self, file_path):
-        pass
+        # 画面キャプチャを取得して保存
+        self.save_screenshot(file_path) 
+        logger.info(f"画面キャプチャを取得して {file_path} に保存しました")
 
 def create_driver(driver_type):
     return driver_type()
